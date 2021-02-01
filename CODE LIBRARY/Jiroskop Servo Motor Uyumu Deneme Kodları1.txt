@@ -1,0 +1,26 @@
+#include <Wire.h>
+#include <I2Cdev.h> //I2C kütüphanesini ekledik
+#include <MPU6050.h> //Mpu6050 kütüphanesi ekledik
+#include<Servo.h> // Servo motor kütüphanesi
+ MPU6050 ivme_sensor; // sensörümüze ivme_sensor adını verdik
+int16_t ax, ay, az; //ivme tanımlama
+int16_t gx, gy, gz; //gyro tanımlama 
+Servo motor; // motor isminde bir servo nesnesi oluşturduk.
+ void setup() {
+motor.attach(3); // servo motorun bağlandığı arduino pini 
+Wire.begin();
+Serial.begin(9600);
+Serial.println("I2C cihazlar baslatiliyor...");
+ivme_sensor.initialize();
+Serial.println("Test cihazi baglantilari...");
+Serial.println(ivme_sensor.testConnection() ? "MPU6050 baglanti basarili" : "MPU6050 baglanti basarisiz");
+}
+ void loop() {
+ivme_sensor.getMotion6(&ax, &ay, &az, &gx, &gy, &gz); // ivme ve gyro değerlerini okuma
+ //açısal ivmeleri ve gyro değerlerini serial ekrana yazdıralım
+ay=map(ay,-17000,17000,0,180); // İvme sensöründen okunan değer 0-180 arasına indirgeniyor
+Serial.print(ay); 
+Serial.println("\t");
+ motor.write(ay); // Y ekseninden okunan değer servo motora açı değeri olarak yazıldı.
+delay(10); //değerlerin değişimini daha net görmek için yarım saniye beklesin.
+}
